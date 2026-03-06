@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Custos 3D - V&F 3D Solutions</title>
+  <meta name="description" content="Calcule precisamente o custo e o preço de suas impressões 3D." />
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%237b5cff"/><stop offset="100%" stop-color="%2306b6d4"/></linearGradient></defs><rect rx="14" ry="14" width="64" height="64" fill="url(%23g)"/><g fill="white"><path d="M20 20h24a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8v6h4a2 2 0 1 1 0 4H24a2 2 0 1 1 0-4h4v-6h-8a2 2 0 0 1-2-2V22a2 2 0 0 1 2-2z"/><circle cx="32" cy="28" r="4"/></g></svg>'
+  />
+  <link
+    rel="mask-icon"
+    color="#6d28d9"
+    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M20 20h24a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8v6h4a2 2 0 1 1 0 4H24a2 2 0 1 1 0-4h4v-6h-8a2 2 0 0 1-2-2V22a2 2 0 0 1 2-2zM32 24a4 4 0 1 0 0 8a4 4 0 0 0 0-8z" fill="black"/></svg>'
+  />
+
+  <meta name="theme-color" content="#7b5cff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" id="meta-theme-color-dark" />
+
+  <script>
+    (function makeAppleIcon() {
+      try {
+        const c = document.createElement("canvas");
+        c.width = c.height = 180;
+        const x = c.getContext("2d");
+        const r = 36;
+        const g = x.createLinearGradient(0, 0, 180, 180);
+        g.addColorStop(0, "#7b5cff");
+        g.addColorStop(1, "#06b6d4");
+        x.fillStyle = g;
+        x.beginPath();
+        x.moveTo(r, 0);
+        x.arcTo(180, 0, 180, 180, r);
+        x.arcTo(180, 180, 0, 180, r);
+        x.arcTo(0, 180, 0, 0, r);
+        x.arcTo(0, 0, 180, 0, r);
+        x.closePath();
+        x.fill();
+        x.fillStyle = "#fff";
+        x.fillRect(45, 50, 90, 32);
+        x.beginPath();
+        x.arc(90, 66, 8, 0, Math.PI * 2);
+        x.fill();
+        x.fillRect(86, 82, 8, 28);
+        const link = document.createElement("link");
+        link.rel = "apple-touch-icon";
+        link.href = c.toDataURL("image/png");
+        document.head.appendChild(link);
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    :root {
+      --container-max: 1080px;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --muted-2: #374151;
+      --border: #e5e7eb;
+      --border-2: #d1d5db;
+      --input-bg: #ffffff;
+      --input-disabled: #f3f4f6;
+      --input-disabled-text: #6b7280;
+
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-violet: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-orange: #f97316;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --muted-2: #cbd5e1;
+      --border: #334155;
+      --border-2: #334155;
+      --input-bg: #0b1220;
+      --input-disabled: #111827;
+      --input-disabled-text: #94a3b8;
+
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+
+      --accent-blue: #60a5fa;
+      --accent-green: #4ade80;
+      --accent-violet: #a78bfa;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --accent-orange: #fb923c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: clamp(16px, 2.5vw, 32px) 0;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 clamp(12px, 2vw, 20px); }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-toggle {
+      background: transparent;
+      border: 1px solid var(--border-2);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .language-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .language-select {
+      min-width: 220px;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .header { text-align: center; margin-bottom: clamp(16px, 3vw, 32px); }
+    .header-title { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+    .header-logo {
+      width: clamp(40px, 6vw, 64px);
+      height: auto;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08));
+      border-radius: 12px;
+    }
+    .header h1 {
+      font-size: clamp(22px, 2.2vw + 10px, 34px);
+      font-weight: 800;
+      color: var(--text);
+      margin: 0;
+      text-wrap: balance;
+    }
+    .header p {
+      font-size: clamp(14px, 1.1vw + 8px, 18px);
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 2vw, 24px);
+    }
+    @media (min-width: 1024px) {
+      .main-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: start; }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(14px, 1.8vw, 20px);
+      margin-bottom: clamp(10px, 1.2vw, 12px);
+      transition: background 0.2s ease;
+    }
+
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: clamp(10px, 1.4vw, 16px); }
+    .card-header .icon { font-size: 1.25rem; }
+    .card-header h2 { font-size: clamp(16px, 1.2vw + 10px, 20px); font-weight: 700; color: var(--text); }
+
+    .icon-print { color: var(--accent-blue); }
+    .icon-box { color: var(--accent-green); }
+    .icon-tools { color: var(--accent-violet); }
+    .icon-bolt { color: var(--accent-amber); }
+    .icon-chart { color: var(--accent-red); }
+    .icon-dollar { color: var(--accent-green); }
+    .icon-target { color: var(--accent-green); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(10px, 1.5vw, 14px);
+    }
+    @media (min-width: 768px) {
+      .form-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+      .form-grid.three-cols { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+      .form-grid.full-width { grid-template-columns: 1fr; }
+    }
+
+    .form-group { margin-bottom: 0.4rem; }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--muted-2); margin-bottom: 0.35rem; }
+    .form-input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: 0.2s;
+      background: var(--input-bg);
+      color: var(--text);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 25%, transparent);
+    }
+    .form-input:disabled { background: var(--input-disabled); color: var(--input-disabled-text); }
+
+    .tooltip { position: relative; display: inline-block; }
+    .tooltip-icon { color: #9ca3af; cursor: help; margin-left: 0.25rem; }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #374151;
+      color: #fff;
+      border-radius: 10px;
+      padding: 0.75rem;
+      width: clamp(220px, 28vw, 280px);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      z-index: 1000;
+      transition: opacity 0.25s ease;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #374151 transparent transparent transparent;
+    }
+    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+    .results-content .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: clamp(14px, 1vw + 10px, 16px);
+    }
+    .results-content .result-row.total {
+      border-top: 2px solid var(--border-2);
+      border-bottom: none;
+      font-weight: 800;
+      font-size: clamp(16px, 1.2vw + 12px, 18px);
+      padding: 0.75rem 0;
+    }
+    .result-total { color: var(--accent-red); }
+
+    .pricing-card { padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }
+    .pricing-card.consumer { background: color-mix(in oklab, var(--accent-blue) 8%, var(--card)); }
+    .pricing-card.wholesale { background: color-mix(in oklab, var(--accent-violet) 10%, var(--card)); }
+    .pricing-card.personal { background: color-mix(in oklab, var(--accent-orange) 8%, var(--card)); }
+
+    .pricing-title { font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 6px; }
+    .pricing-title.consumer { color: color-mix(in oklab, var(--accent-blue) 60%, var(--text)); }
+    .pricing-title.wholesale { color: color-mix(in oklab, var(--accent-violet) 65%, var(--text)); }
+    .pricing-title.personal { color: color-mix(in oklab, var(--accent-orange) 65%, var(--text)); }
+
+    .pricing-value { display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: clamp(14px, 1vw + 10px, 16px); }
+    .pricing-main { font-weight: 800; font-size: clamp(18px, 1.4vw + 14px, 22px); }
+    .pricing-main.consumer { color: var(--accent-green); }
+    .pricing-main.wholesale { color: var(--accent-violet); }
+    .pricing-main.personal { color: var(--accent-amber); }
+
+    .pricing-sub { font-size: 0.9rem; color: var(--muted); }
+    .pricing-sub.consumer { color: var(--accent-green); }
+    .pricing-sub.wholesale { color: var(--accent-violet); }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 520px) {
+      .btn-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      padding: 0.85rem 1rem;
+      border: none;
+      border-radius: 12px;
+      font-size: clamp(15px, 1.1vw + 10px, 18px);
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(59, 130, 246, 0.15);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-icon { margin-right: 0.5rem; }
+
+    .footer {
+      margin-top: clamp(24px, 4vw, 48px);
+      padding-top: clamp(16px, 2.4vw, 28px);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .footer-title { font-size: clamp(15px, 1.1vw + 10px, 18px); font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+    .footer-subtitle { font-size: 0.9rem; color: var(--muted); }
+
+    @media (max-width: 480px) {
+      .card { padding: 12px; }
+      .pricing-card { padding: 12px; }
+    }
+
+    .input-group { grid-column: span 2; }
+    @media (max-width: 768px) { .input-group { grid-column: span 1; } }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal {
+      width: min(1100px, 94vw);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      max-height: 90vh;
+      overflow: auto;
+    }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .modal-title { font-weight: 800; font-size: 1.1rem; }
+    .modal-close {
+      border: 1px solid var(--border-2);
+      background: transparent;
+      color: var(--text);
+      padding: 0.4rem 0.7rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .modelagem-container { display: flex; gap: 20px; flex-wrap: wrap; }
+    .modelagem-form, .modelagem-resumo {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 12px;
+      flex: 1 1 320px;
+      min-width: 300px;
+    }
+    .modelagem-form h3, .modelagem-resumo h3 { margin: 0 0 10px 0; color: var(--primary); }
+    .modelagem-form label { display: block; margin: 10px 0 5px; color: var(--muted-2); }
+    .modelagem-form input, .modelagem-form select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-2);
+      background: var(--input-bg);
+      color: var(--text);
+    }
+    .highlight { font-size: 1.4rem; font-weight: 800; color: var(--accent-green); }
+
+    .small { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="language-wrap">
+        <label for="countrySelect" class="form-label" id="labelCountrySelect" style="margin:0;">País / Idioma / Moeda</label>
+        <select id="countrySelect" class="language-select">
+          <option value="BR">Brasil — Português (Brasil) — R$ Real</option>
+          <option value="PT">Portugal — Português (Portugal) — € Euro</option>
+          <option value="US">Estados Unidos — English (US) — $ Dollar</option>
+        </select>
+      </div>
+      <button class="btn-toggle" id="btnToggleTheme" type="button">🌓 Alternar tema</button>
+    </div>
+
+    <div class="header">
+      <div class="header-title">
+        <img
+          src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237b5cff'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect rx='14' ry='14' width='64' height='64' fill='url(%23g)'/><g fill='white'><path d='M20 20h24a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8v6h4a2 2 0 1 1 0 4H24a2 2 0 1 1 0-4h4v-6h-8a2 2 0 0 1-2-2V22a2 2 0 0 1 2-2z'/><circle cx='32' cy='28' r='4'/></g></svg>"
+          alt="Logo V&F 3D Solutions"
+          class="header-logo"
+        />
+        <h1 id="headerMainTitle">Calculadora de Custos 3D - V&F 3D Solutions</h1>
+      </div>
+      <p id="headerSubtitle">Calcule precisamente o custo e preço de suas impressões 3D</p>
+    </div>
+
+    <div class="main-grid">
+      <div class="inputs-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-print" aria-hidden="true">🖨️</span>
+            <h2 id="titlePieceData">Dados da Peça</h2>
+          </div>
+          <div class="form-grid three-cols">
+            <div class="form-group">
+              <label class="form-label" for="nomePeca" id="labelNomePeca">Nome da Peça</label>
+              <input type="text" class="form-input" id="nomePeca" value="Minha peça" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tempoImpressao" id="labelTempoImpressao">
+                Tempo (horas)
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipTempoImpressao">Tempo total de impressão em horas (ex: 12.5 para 12h30min)</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="tempoImpressao" value="12.2" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pesoGramas" id="labelPesoGramas">
+                Peso (gramas)
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipPesoGramas">Peso final da peça em gramas (use a informação do seu slicer)</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="pesoGramas" value="223.57" oninput="calcularTodos()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-box" aria-hidden="true">📦</span>
+            <h2 id="titleMaterialEnergy">Material e Energia</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="custoKgFilamento">
+                <span id="labelCustoKgFilamento">Custo Filamento</span> <span id="unitCustoKgFilamento">(R$/kg)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipCustoKgFilamento">Preço que você pagou por 1kg do filamento</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="custoKgFilamento" value="89.90" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="potenciaWatts">
+                <span id="labelPotenciaWatts">Potência Impressora (W)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipPotenciaWatts">Potência da sua impressora 3D em Watts (verifique nas especificações)</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="potenciaWatts" value="360" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="custoKwh">
+                <span id="labelCustoKwh">Custo kWh</span> <span id="unitCustoKwh">(R$)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipCustoKwh">Valor do kWh na sua conta de luz</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="custoKwh" value="0.84" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="consumoKwh">
+                <span id="labelConsumoKwh">Consumo (kWh)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipConsumoKwh">Consumo de energia calculado para esta impressão</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="consumoKwh" disabled />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-tools" aria-hidden="true">🛠️</span>
+            <h2 id="titlePackagingFixed">Embalagem e Custos Fixos</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="valorRoloEmbalagem">
+                <span id="labelValorRoloEmbalagem">Valor Rolo Embalagem</span> <span id="unitValorRoloEmbalagem">(R$)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipValorRoloEmbalagem">Valor que você pagou por um rolo/pacote de embalagens</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="valorRoloEmbalagem" value="25.00" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="embalagensRolo">
+                <span id="labelEmbalagensRolo">Embalagens por Rolo</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipEmbalagensRolo">Quantas embalagens você consegue com esse rolo</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="embalagensRolo" value="10" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="unidadesMes">
+                <span id="labelUnidadesMes">Unidades/Mês</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipUnidadesMes">Quantas peças você produz por mês em média</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="unidadesMes" value="40" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="custoFixoMensal">
+                <span id="labelCustoFixoMensal">Custo Fixo Mensal</span> <span id="unitCustoFixoMensal">(R$)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipCustoFixoMensal">Gastos fixos mensais (aluguel, internet, luz base, etc.)</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="custoFixoMensal" value="300.00" oninput="calcularTodos()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-tools" aria-hidden="true">🧾</span>
+            <h2 id="titleAdditionalCosts">Gastos Adicionais</h2>
+          </div>
+
+          <div class="form-grid full-width">
+            <div class="form-group">
+              <label class="form-label">
+                <span id="labelAdditionalItems">Itens (por peça)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipAdditionalItems">
+                    Some custos extras por unidade (ex.: cola, ímã, parafuso, lixa, pintura, fita, etiqueta, brinde etc.).
+                    IMPORTANTE: esses adicionais NÃO são multiplicados pelo markup; eles são SOMADOS no final do preço.
+                  </span>
+                </span>
+              </label>
+
+              <div id="extrasList" style="display:grid; gap:10px;"></div>
+
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+                <button type="button" class="btn-toggle" onclick="adicionarExtra()" id="btnAddExtra">➕ Adicionar item</button>
+                <div style="margin-left:auto; font-weight:800;">
+                  <span id="labelTotalAdditional">Total adicionais:</span> <span id="displayTotalAdicionais">R$ 0,00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-bolt" aria-hidden="true">⚡</span>
+            <h2 id="titlePrinterAmortization">Amortização da Impressora</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="valorImpressora">
+                <span id="labelValorImpressora">Valor da Impressora</span> <span id="unitValorImpressora">(R$)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipValorImpressora">Valor que você pagou pela impressora</span>
+                </span>
+              </label>
+              <input type="number" step="0.01" class="form-input" id="valorImpressora" value="4500" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="vidaUtilHoras">
+                <span id="labelVidaUtilHoras">Vida Útil (horas)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipVidaUtilHoras">Vida útil estimada da impressora em horas de funcionamento</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="vidaUtilHoras" value="20000" oninput="calcularTodos()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-chart" aria-hidden="true">📊</span>
+            <h2 id="titleRatesPricing">Taxas e Precificação</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="percentualFalhas">
+                <span id="labelPercentualFalhas">% de Falhas</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipPercentualFalhas">Percentual de impressões que falham e precisam ser refeitas</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="percentualFalhas" value="15" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="imposto">
+                <span id="labelImposto">Imposto (%)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipImposto">Percentual de impostos (MEI, Simples Nacional, etc.)</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="imposto" value="8" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="taxaCartao">
+                <span id="labelTaxaCartao">Taxa Cartão (%)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipTaxaCartao">Taxa cobrada por operadoras de cartão</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="taxaCartao" value="5" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="custoAnuncio">
+                <span id="labelCustoAnuncio">Custo Anúncio (%)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipCustoAnuncio">Percentual gasto com anúncios e marketing</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="custoAnuncio" value="20" oninput="calcularTodos()" />
+            </div>
+            <div class="form-group input-group">
+              <label class="form-label" for="markup">
+                <span id="labelMarkup">Markup (multiplicador)</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipMarkup">Multiplicador para calcular o preço de venda (ex: 5x = 500% de markup)</span>
+                </span>
+              </label>
+              <input type="number" step="0.1" class="form-input" id="markup" value="5" oninput="calcularTodos()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-tools" aria-hidden="true">🧾</span>
+            <h2 id="titleInvoiceNumber">Número da NF / Pedido</h2>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="numeroNF">
+                <span id="labelNumeroNF">Nº NF / Pedido</span>
+                <span class="tooltip">
+                  <span class="tooltip-icon">ℹ️</span>
+                  <span class="tooltip-text" id="tipNumeroNF">
+                    Digite o número que você precisa usar no orçamento (ex.: NF 12345, Pedido 2026-001).
+                    Se deixar vazio, o sistema gera automaticamente (VF-xxxxxx).
+                  </span>
+                </span>
+              </label>
+              <input type="text" class="form-input" id="numeroNF" placeholder="Ex.: NF 12345 ou VF-000123" />
+              <div class="small" style="margin-top:6px;" id="numeroNFNote">Esse número aparece no PDF do orçamento (cliente e lojista).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-dollar" aria-hidden="true">💰</span>
+            <h2 id="titleDetailedCosts">Custos Detalhados</h2>
+          </div>
+          <div class="results-content">
+            <div class="result-row"><span id="textFilamento">Filamento:</span><span id="displayCustoFilamento">R$ 0,00</span></div>
+            <div class="result-row"><span id="textEnergia">Energia:</span><span id="displayCustoEnergetico">R$ 0,00</span></div>
+            <div class="result-row"><span id="textEmbalagem">Embalagem:</span><span id="displayCustoEmbalagem">R$ 0,00</span></div>
+            <div class="result-row"><span id="textCustoFixo">Custo Fixo:</span><span id="displayCustoFixo">R$ 0,00</span></div>
+            <div class="result-row"><span id="textAmortizacao">Amortização:</span><span id="displayCustoAmortizacao">R$ 0,00</span></div>
+            <div class="result-row"><span id="textAdicionais">Adicionais:</span><span id="displayCustoAdicionais">R$ 0,00</span></div>
+            <div class="result-row">
+              <span><span id="textFalhas">Falhas</span> (<span id="displayPercentualFalhas">15</span>%):</span>
+              <span id="displayCustoFalhas">R$ 0,00</span>
+            </div>
+            <div class="result-row total">
+              <span id="textCustoTotal">CUSTO TOTAL:</span>
+              <span class="result-total" id="displayCustoTotal">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="icon icon-target" aria-hidden="true">🎯</span>
+            <h2 id="titlePricing">
+              Precificação
+              <span class="tooltip">
+                <span class="tooltip-icon">ℹ️</span>
+                <span class="tooltip-text" id="tipPricing">Preço = (Custo SEM adicionais * markup) + adicionais. Adicionais NÃO entram no markup.</span>
+              </span>
+            </h2>
+          </div>
+
+          <div class="pricing-content">
+            <div class="pricing-card consumer">
+              <div class="pricing-title consumer" id="titleConsumerFinal">Consumidor Final</div>
+              <div class="pricing-value"><span id="textPrecoVenda">Preço de Venda:</span><span class="pricing-main consumer" id="displayPrecoVenda">R$ 0,00</span></div>
+              <div class="pricing-value"><span class="pricing-sub" id="textLucroBruto">Lucro Bruto:</span><span class="pricing-sub consumer" id="displayLucroBruto">R$ 0,00</span></div>
+              <div class="pricing-value"><span class="pricing-sub" id="textLucroLiquido">Lucro Líquido:</span><span class="pricing-sub consumer" id="displayLucroLiquido">R$ 0,00</span></div>
+            </div>
+
+            <div class="pricing-card wholesale">
+              <div class="pricing-title wholesale" id="titleWholesale">Preço Lojista</div>
+              <div class="pricing-value"><span id="textPrecoLojista">Preço Lojista:</span><span class="pricing-main wholesale" id="displayPrecoLojista">R$ 0,00</span></div>
+              <div class="pricing-value"><span class="pricing-sub" id="textLucroBrutoLojista">Lucro Bruto:</span><span class="pricing-sub wholesale" id="displayLucroBrutoLojista">R$ 0,00</span></div>
+              <div class="pricing-value"><span class="pricing-sub" id="textLucroLiquidoLojista">Lucro Líquido:</span><span class="pricing-sub wholesale" id="displayLucroLiquidoLojista">R$ 0,00</span></div>
+            </div>
+
+            <div class="pricing-card personal">
+              <div class="pricing-title personal" id="titlePersonalUse">Uso Pessoal (Makers)</div>
+              <div class="pricing-value"><span id="textCustoReal">Custo Real:</span><span class="pricing-main personal" id="displayCustoUsoPessoal">R$ 0,00</span></div>
+              <div class="pricing-value"><span class="pricing-sub personal" id="textPersonalUseDesc">Apenas material + energia + amortização</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button onclick="exportarPDF()" class="btn-primary" id="btnExportPDF"><span class="btn-icon">📥</span>Exportar Cálculo (PDF)</button>
+          <button onclick="exportarOrcamentoClientePDF()" class="btn-primary" id="btnClientePDF"><span class="btn-icon">🧾</span>Gerar Orçamento (Cliente)</button>
+          <button onclick="exportarOrcamentoLojistaPDF()" class="btn-primary" id="btnLojistaPDF"><span class="btn-icon">🏪</span>Gerar Orçamento (Lojista)</button>
+          <button onclick="abrirModelagem()" class="btn-primary" id="btnModelagem"><span class="btn-icon">🧩</span>Cálcular Modelagem</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p class="footer-title">Copyright © V&F 3D Solutions</p>
+      <p class="footer-subtitle" id="footerSubtitle">Esta criação foi inspirada e baseada na planilha de Cotrim 3D.</p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalModelagem">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modelagemTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="modelagemTitle">Calculadora de Modelagem / Prototipagem</div>
+        <button class="modal-close" onclick="fecharModelagem()" id="btnCloseModal">Fechar ✕</button>
+      </div>
+
+      <div class="modelagem-container">
+        <div class="modelagem-form">
+          <h3 id="titleProjectConfig">Configuração do Projeto</h3>
+
+          <label for="tipoProjeto" id="labelTipoProjeto">Tipo de projeto</label>
+          <select id="tipoProjeto" onchange="sincronizarHorasPorTipo()">
+            <option value="simples" data-horas="4" id="optProjetoSimples">Simples (peça básica)</option>
+            <option value="medio" data-horas="8" id="optProjetoMedio">Médio (protótipo funcional)</option>
+            <option value="complexo" data-horas="16" id="optProjetoComplexo">Complexo (produto detalhado)</option>
+            <option value="custom" data-horas="0" id="optProjetoCustom">Personalizado (defina valores)</option>
+          </select>
+
+          <label for="custoHora" id="labelCustoHora">Custo por hora</label>
+          <input type="number" id="custoHora" value="50" step="0.01" />
+
+          <label for="horas" id="labelHoras">Horas estimadas</label>
+          <input type="number" id="horas" value="8" step="0.1" />
+
+          <label for="revisoes" id="labelRevisoes">Número de revisões incluídas</label>
+          <input type="number" id="revisoes" value="2" step="1" />
+
+          <label for="prototipo" id="labelPrototipo">Custo do protótipo físico</label>
+          <input type="number" id="prototipo" value="150" step="0.01" />
+
+          <label for="nda" id="labelNDA">Taxa de Propriedade Intelectual / NDA</label>
+          <input type="number" id="nda" value="0" step="0.01" />
+
+          <label for="urgencia" id="labelUrgencia">Urgência</label>
+          <select id="urgencia">
+            <option value="1" id="urgenciaNormal">Normal</option>
+            <option value="2" id="urgenciaUrgente">Urgente (+100%)</option>
+          </select>
+
+          <h3 id="titleFinancial">Financeiro</h3>
+          <label for="desconto" id="labelDesconto">Desconto (%)</label>
+          <input type="number" id="desconto" value="0" step="0.1" />
+
+          <label for="impostoModel" id="labelImpostoModel">Imposto (%)</label>
+          <input type="number" id="impostoModel" value="0" step="0.1" />
+
+          <label for="markupModel" id="labelMarkupModel">Markup (%)</label>
+          <input type="number" id="markupModel" value="0" step="0.1" />
+
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <button class="btn-primary" onclick="calcularModelagem()" id="btnCalcularModelagem"><span class="btn-icon">🧮</span>Calcular orçamento</button>
+            <button class="btn-toggle" onclick="limparModelagem()" id="btnLimparModelagem">Limpar</button>
+          </div>
+        </div>
+
+        <div class="modelagem-resumo">
+          <h3 id="titleResumoModelagem">Resumo do orçamento</h3>
+          <h4 id="titlePrecoSugerido">Preço sugerido:</h4>
+          <div class="highlight" id="precoFinal">R$ 0,00</div>
+          <div id="detalhes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const THEME_KEY = "vf_theme";
+    const COUNTRY_KEY = "vf_country";
+    const NF_KEY = "vf_nf_manual";
+    const prefersDarkMedia = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+    const COUNTRY_CONFIG = {
+      BR: {
+        locale: "pt-BR",
+        currency: "BRL",
+        symbol: "R$",
+        lang: "pt-BR",
+        texts: {
+          toggleThemeDark: "🌓 Tema escuro",
+          toggleThemeLight: "🌞 Tema claro",
+          pageTitle: "Calculadora de Custos 3D - V&F 3D Solutions",
+          headerSubtitle: "Calcule precisamente o custo e preço de suas impressões 3D",
+          titlePieceData: "Dados da Peça",
+          labelNomePeca: "Nome da Peça",
+          labelTempoImpressao: "Tempo (horas)",
+          tipTempoImpressao: "Tempo total de impressão em horas (ex: 12.5 para 12h30min)",
+          labelPesoGramas: "Peso (gramas)",
+          tipPesoGramas: "Peso final da peça em gramas (use a informação do seu slicer)",
+          titleMaterialEnergy: "Material e Energia",
+          labelCustoKgFilamento: "Custo Filamento",
+          labelPotenciaWatts: "Potência Impressora (W)",
+          labelCustoKwh: "Custo kWh",
+          labelConsumoKwh: "Consumo (kWh)",
+          tipCustoKgFilamento: "Preço que você pagou por 1kg do filamento",
+          tipPotenciaWatts: "Potência da sua impressora 3D em Watts (verifique nas especificações)",
+          tipCustoKwh: "Valor do kWh na sua conta de luz",
+          tipConsumoKwh: "Consumo de energia calculado para esta impressão",
+          titlePackagingFixed: "Embalagem e Custos Fixos",
+          labelValorRoloEmbalagem: "Valor Rolo Embalagem",
+          labelEmbalagensRolo: "Embalagens por Rolo",
+          labelUnidadesMes: "Unidades/Mês",
+          labelCustoFixoMensal: "Custo Fixo Mensal",
+          tipValorRoloEmbalagem: "Valor que você pagou por um rolo/pacote de embalagens",
+          tipEmbalagensRolo: "Quantas embalagens você consegue com esse rolo",
+          tipUnidadesMes: "Quantas peças você produz por mês em média",
+          tipCustoFixoMensal: "Gastos fixos mensais (aluguel, internet, luz base, etc.)",
+          titleAdditionalCosts: "Gastos Adicionais",
+          labelAdditionalItems: "Itens (por peça)",
+          tipAdditionalItems: "Some custos extras por unidade (ex.: cola, ímã, parafuso, lixa, pintura, fita, etiqueta, brinde etc.). IMPORTANTE: esses adicionais NÃO são multiplicados pelo markup; eles são SOMADOS no final do preço.",
+          btnAddExtra: "➕ Adicionar item",
+          labelTotalAdditional: "Total adicionais:",
+          titlePrinterAmortization: "Amortização da Impressora",
+          labelValorImpressora: "Valor da Impressora",
+          labelVidaUtilHoras: "Vida Útil (horas)",
+          tipValorImpressora: "Valor que você pagou pela impressora",
+          tipVidaUtilHoras: "Vida útil estimada da impressora em horas de funcionamento",
+          titleRatesPricing: "Taxas e Precificação",
+          labelPercentualFalhas: "% de Falhas",
+          labelImposto: "Imposto (%)",
+          labelTaxaCartao: "Taxa Cartão (%)",
+          labelCustoAnuncio: "Custo Anúncio (%)",
+          labelMarkup: "Markup (multiplicador)",
+          tipPercentualFalhas: "Percentual de impressões que falham e precisam ser refeitas",
+          tipImposto: "Percentual de impostos (MEI, Simples Nacional, etc.)",
+          tipTaxaCartao: "Taxa cobrada por operadoras de cartão",
+          tipCustoAnuncio: "Percentual gasto com anúncios e marketing",
+          tipMarkup: "Multiplicador para calcular o preço de venda (ex: 5x = 500% de markup)",
+          titleInvoiceNumber: "Número da NF / Pedido",
+          labelNumeroNF: "Nº NF / Pedido",
+          tipNumeroNF: "Digite o número que você precisa usar no orçamento (ex.: NF 12345, Pedido 2026-001). Se deixar vazio, o sistema gera automaticamente (VF-xxxxxx).",
+          numeroNFNote: "Esse número aparece no PDF do orçamento (cliente e lojista).",
+          titleDetailedCosts: "Custos Detalhados",
+          textFilamento: "Filamento:",
+          textEnergia: "Energia:",
+          textEmbalagem: "Embalagem:",
+          textCustoFixo: "Custo Fixo:",
+          textAmortizacao: "Amortização:",
+          textAdicionais: "Adicionais:",
+          textFalhas: "Falhas",
+          textCustoTotal: "CUSTO TOTAL:",
+          titlePricing: "Precificação",
+          tipPricing: "Preço = (Custo SEM adicionais * markup) + adicionais. Adicionais NÃO entram no markup.",
+          titleConsumerFinal: "Consumidor Final",
+          textPrecoVenda: "Preço de Venda:",
+          textLucroBruto: "Lucro Bruto:",
+          textLucroLiquido: "Lucro Líquido:",
+          titleWholesale: "Preço Lojista",
+          textPrecoLojista: "Preço Lojista:",
+          textLucroBrutoLojista: "Lucro Bruto:",
+          textLucroLiquidoLojista: "Lucro Líquido:",
+          titlePersonalUse: "Uso Pessoal (Makers)",
+          textCustoReal: "Custo Real:",
+          textPersonalUseDesc: "Apenas material + energia + amortização",
+          btnExportPDF: "📥 Exportar Cálculo (PDF)",
+          btnClientePDF: "🧾 Gerar Orçamento (Cliente)",
+          btnLojistaPDF: "🏪 Gerar Orçamento (Lojista)",
+          btnModelagem: "🧩 Cálcular Modelagem",
+          footerSubtitle: "Esta criação foi inspirada e baseada na planilha de Cotrim 3D.",
+          labelCountrySelect: "País / Idioma / Moeda",
+          modelagemTitle: "Calculadora de Modelagem / Prototipagem",
+          btnCloseModal: "Fechar ✕",
+          titleProjectConfig: "Configuração do Projeto",
+          labelTipoProjeto: "Tipo de projeto",
+          optProjetoSimples: "Simples (peça básica)",
+          optProjetoMedio: "Médio (protótipo funcional)",
+          optProjetoComplexo: "Complexo (produto detalhado)",
+          optProjetoCustom: "Personalizado (defina valores)",
+          labelCustoHora: "Custo por hora",
+          labelHoras: "Horas estimadas",
+          labelRevisoes: "Número de revisões incluídas",
+          labelPrototipo: "Custo do protótipo físico",
+          labelNDA: "Taxa de Propriedade Intelectual / NDA",
+          labelUrgencia: "Urgência",
+          urgenciaNormal: "Normal",
+          urgenciaUrgente: "Urgente (+100%)",
+          titleFinancial: "Financeiro",
+          labelDesconto: "Desconto (%)",
+          labelImpostoModel: "Imposto (%)",
+          labelMarkupModel: "Markup (%)",
+          btnCalcularModelagem: "🧮 Calcular orçamento",
+          btnLimparModelagem: "Limpar",
+          titleResumoModelagem: "Resumo do orçamento",
+          titlePrecoSugerido: "Preço sugerido:",
+          placeholderExtra: "Ex.: ímã / cola / pintura...",
+          removeTitle: "Remover",
+          defaultPieceName: "Minha peça"
+        }
+      },
+      PT: {
+        locale: "pt-PT",
+        currency: "EUR",
+        symbol: "€",
+        lang: "pt-PT",
+        texts: {
+          toggleThemeDark: "🌓 Tema escuro",
+          toggleThemeLight: "🌞 Tema claro",
+          pageTitle: "Calculadora de Custos 3D - V&F 3D Solutions",
+          headerSubtitle: "Calcule com precisão o custo e o preço das suas impressões 3D",
+          titlePieceData: "Dados da Peça",
+          labelNomePeca: "Nome da Peça",
+          labelTempoImpressao: "Tempo (horas)",
+          tipTempoImpressao: "Tempo total de impressão em horas (ex.: 12.5 para 12h30min)",
+          labelPesoGramas: "Peso (gramas)",
+          tipPesoGramas: "Peso final da peça em gramas (use a informação do seu slicer)",
+          titleMaterialEnergy: "Material e Energia",
+          labelCustoKgFilamento: "Custo do Filamento",
+          labelPotenciaWatts: "Potência da Impressora (W)",
+          labelCustoKwh: "Custo kWh",
+          labelConsumoKwh: "Consumo (kWh)",
+          tipCustoKgFilamento: "Preço que pagou por 1kg do filamento",
+          tipPotenciaWatts: "Potência da sua impressora 3D em Watts (verifique as especificações)",
+          tipCustoKwh: "Valor do kWh na sua fatura de eletricidade",
+          tipConsumoKwh: "Consumo de energia calculado para esta impressão",
+          titlePackagingFixed: "Embalagem e Custos Fixos",
+          labelValorRoloEmbalagem: "Valor do Rolo de Embalagem",
+          labelEmbalagensRolo: "Embalagens por Rolo",
+          labelUnidadesMes: "Unidades/Mês",
+          labelCustoFixoMensal: "Custo Fixo Mensal",
+          tipValorRoloEmbalagem: "Valor que pagou por um rolo/pacote de embalagens",
+          tipEmbalagensRolo: "Quantas embalagens consegue com esse rolo",
+          tipUnidadesMes: "Quantas peças produz por mês, em média",
+          tipCustoFixoMensal: "Custos fixos mensais (renda, internet, luz base, etc.)",
+          titleAdditionalCosts: "Custos Adicionais",
+          labelAdditionalItems: "Itens (por peça)",
+          tipAdditionalItems: "Some custos extra por unidade (ex.: cola, íman, parafuso, lixa, pintura, fita, etiqueta, brinde, etc.). IMPORTANTE: estes adicionais NÃO são multiplicados pelo markup; são SOMADOS no final do preço.",
+          btnAddExtra: "➕ Adicionar item",
+          labelTotalAdditional: "Total adicionais:",
+          titlePrinterAmortization: "Amortização da Impressora",
+          labelValorImpressora: "Valor da Impressora",
+          labelVidaUtilHoras: "Vida Útil (horas)",
+          tipValorImpressora: "Valor que pagou pela impressora",
+          tipVidaUtilHoras: "Vida útil estimada da impressora em horas de funcionamento",
+          titleRatesPricing: "Taxas e Precificação",
+          labelPercentualFalhas: "% de Falhas",
+          labelImposto: "Imposto (%)",
+          labelTaxaCartao: "Taxa de Cartão (%)",
+          labelCustoAnuncio: "Custo de Anúncio (%)",
+          labelMarkup: "Markup (multiplicador)",
+          tipPercentualFalhas: "Percentagem de impressões que falham e precisam de ser refeitas",
+          tipImposto: "Percentagem de impostos",
+          tipTaxaCartao: "Taxa cobrada pelos operadores de cartão",
+          tipCustoAnuncio: "Percentagem gasta com anúncios e marketing",
+          tipMarkup: "Multiplicador para calcular o preço de venda (ex.: 5x = 500% de markup)",
+          titleInvoiceNumber: "Número da Fatura / Pedido",
+          labelNumeroNF: "Nº Fatura / Pedido",
+          tipNumeroNF: "Introduza o número que precisa usar no orçamento (ex.: Fatura 12345, Pedido 2026-001). Se deixar vazio, o sistema gera automaticamente (VF-xxxxxx).",
+          numeroNFNote: "Este número aparece no PDF do orçamento (cliente e lojista).",
+          titleDetailedCosts: "Custos Detalhados",
+          textFilamento: "Filamento:",
+          textEnergia: "Energia:",
+          textEmbalagem: "Embalagem:",
+          textCustoFixo: "Custo Fixo:",
+          textAmortizacao: "Amortização:",
+          textAdicionais: "Adicionais:",
+          textFalhas: "Falhas",
+          textCustoTotal: "CUSTO TOTAL:",
+          titlePricing: "Precificação",
+          tipPricing: "Preço = (Custo SEM adicionais * markup) + adicionais. Os adicionais NÃO entram no markup.",
+          titleConsumerFinal: "Consumidor Final",
+          textPrecoVenda: "Preço de Venda:",
+          textLucroBruto: "Lucro Bruto:",
+          textLucroLiquido: "Lucro Líquido:",
+          titleWholesale: "Preço Revenda",
+          textPrecoLojista: "Preço Revenda:",
+          textLucroBrutoLojista: "Lucro Bruto:",
+          textLucroLiquidoLojista: "Lucro Líquido:",
+          titlePersonalUse: "Uso Pessoal (Makers)",
+          textCustoReal: "Custo Real:",
+          textPersonalUseDesc: "Apenas material + energia + amortização",
+          btnExportPDF: "📥 Exportar Cálculo (PDF)",
+          btnClientePDF: "🧾 Gerar Orçamento (Cliente)",
+          btnLojistaPDF: "🏪 Gerar Orçamento (Revenda)",
+          btnModelagem: "🧩 Calcular Modelagem",
+          footerSubtitle: "Esta criação foi inspirada e baseada na folha de cálculo de Cotrim 3D.",
+          labelCountrySelect: "País / Idioma / Moeda",
+          modelagemTitle: "Calculadora de Modelagem / Prototipagem",
+          btnCloseModal: "Fechar ✕",
+          titleProjectConfig: "Configuração do Projeto",
+          labelTipoProjeto: "Tipo de projeto",
+          optProjetoSimples: "Simples (peça básica)",
+          optProjetoMedio: "Médio (protótipo funcional)",
+          optProjetoComplexo: "Complexo (produto detalhado)",
+          optProjetoCustom: "Personalizado (defina valores)",
+          labelCustoHora: "Custo por hora",
+          labelHoras: "Horas estimadas",
+          labelRevisoes: "Número de revisões incluídas",
+          labelPrototipo: "Custo do protótipo físico",
+          labelNDA: "Taxa de Propriedade Intelectual / NDA",
+          labelUrgencia: "Urgência",
+          urgenciaNormal: "Normal",
+          urgenciaUrgente: "Urgente (+100%)",
+          titleFinancial: "Financeiro",
+          labelDesconto: "Desconto (%)",
+          labelImpostoModel: "Imposto (%)",
+          labelMarkupModel: "Markup (%)",
+          btnCalcularModelagem: "🧮 Calcular orçamento",
+          btnLimparModelagem: "Limpar",
+          titleResumoModelagem: "Resumo do orçamento",
+          titlePrecoSugerido: "Preço sugerido:",
+          placeholderExtra: "Ex.: íman / cola / pintura...",
+          removeTitle: "Remover",
+          defaultPieceName: "Minha peça"
+        }
+      },
+      US: {
+        locale: "en-US",
+        currency: "USD",
+        symbol: "$",
+        lang: "en-US",
+        texts: {
+          toggleThemeDark: "🌓 Dark theme",
+          toggleThemeLight: "🌞 Light theme",
+          pageTitle: "3D Cost Calculator - V&F 3D Solutions",
+          headerSubtitle: "Accurately calculate the cost and selling price of your 3D prints",
+          titlePieceData: "Part Data",
+          labelNomePeca: "Part Name",
+          labelTempoImpressao: "Time (hours)",
+          tipTempoImpressao: "Total print time in hours (example: 12.5 for 12h30m)",
+          labelPesoGramas: "Weight (grams)",
+          tipPesoGramas: "Final part weight in grams (use your slicer information)",
+          titleMaterialEnergy: "Material and Energy",
+          labelCustoKgFilamento: "Filament Cost",
+          labelPotenciaWatts: "Printer Power (W)",
+          labelCustoKwh: "kWh Cost",
+          labelConsumoKwh: "Consumption (kWh)",
+          tipCustoKgFilamento: "Price you paid for 1kg of filament",
+          tipPotenciaWatts: "Your 3D printer power in Watts (check the specifications)",
+          tipCustoKwh: "kWh price on your electricity bill",
+          tipConsumoKwh: "Energy consumption calculated for this print",
+          titlePackagingFixed: "Packaging and Fixed Costs",
+          labelValorRoloEmbalagem: "Packaging Roll Cost",
+          labelEmbalagensRolo: "Packages per Roll",
+          labelUnidadesMes: "Units/Month",
+          labelCustoFixoMensal: "Monthly Fixed Cost",
+          tipValorRoloEmbalagem: "Amount paid for one roll/package of packaging",
+          tipEmbalagensRolo: "How many packages you get from this roll",
+          tipUnidadesMes: "How many parts you produce per month on average",
+          tipCustoFixoMensal: "Monthly fixed expenses (rent, internet, base electricity, etc.)",
+          titleAdditionalCosts: "Additional Costs",
+          labelAdditionalItems: "Items (per part)",
+          tipAdditionalItems: "Add extra costs per unit (e.g. glue, magnet, screw, sanding, painting, tape, label, freebie, etc.). IMPORTANT: these extras are NOT multiplied by markup; they are ADDED at the end of the price.",
+          btnAddExtra: "➕ Add item",
+          labelTotalAdditional: "Total extras:",
+          titlePrinterAmortization: "Printer Amortization",
+          labelValorImpressora: "Printer Price",
+          labelVidaUtilHoras: "Useful Life (hours)",
+          tipValorImpressora: "Amount you paid for the printer",
+          tipVidaUtilHoras: "Estimated useful life of the printer in operating hours",
+          titleRatesPricing: "Fees and Pricing",
+          labelPercentualFalhas: "Failure %",
+          labelImposto: "Tax (%)",
+          labelTaxaCartao: "Card Fee (%)",
+          labelCustoAnuncio: "Ad Cost (%)",
+          labelMarkup: "Markup (multiplier)",
+          tipPercentualFalhas: "Percentage of failed prints that need to be redone",
+          tipImposto: "Tax percentage",
+          tipTaxaCartao: "Fee charged by card operators",
+          tipCustoAnuncio: "Percentage spent on ads and marketing",
+          tipMarkup: "Multiplier used to calculate selling price (example: 5x = 500% markup)",
+          titleInvoiceNumber: "Invoice / Order Number",
+          labelNumeroNF: "Invoice / Order No.",
+          tipNumeroNF: "Enter the number you need to use in the quote (example: INV 12345, Order 2026-001). If left blank, the system generates it automatically (VF-xxxxxx).",
+          numeroNFNote: "This number appears in the customer and reseller quote PDF.",
+          titleDetailedCosts: "Detailed Costs",
+          textFilamento: "Filament:",
+          textEnergia: "Energy:",
+          textEmbalagem: "Packaging:",
+          textCustoFixo: "Fixed Cost:",
+          textAmortizacao: "Amortization:",
+          textAdicionais: "Extras:",
+          textFalhas: "Failures",
+          textCustoTotal: "TOTAL COST:",
+          titlePricing: "Pricing",
+          tipPricing: "Price = (Cost WITHOUT extras * markup) + extras. Extras are NOT included in the markup.",
+          titleConsumerFinal: "Final Consumer",
+          textPrecoVenda: "Selling Price:",
+          textLucroBruto: "Gross Profit:",
+          textLucroLiquido: "Net Profit:",
+          titleWholesale: "Wholesale Price",
+          textPrecoLojista: "Wholesale Price:",
+          textLucroBrutoLojista: "Gross Profit:",
+          textLucroLiquidoLojista: "Net Profit:",
+          titlePersonalUse: "Personal Use (Makers)",
+          textCustoReal: "Real Cost:",
+          textPersonalUseDesc: "Only material + energy + amortization",
+          btnExportPDF: "📥 Export Calculation (PDF)",
+          btnClientePDF: "🧾 Generate Quote (Customer)",
+          btnLojistaPDF: "🏪 Generate Quote (Wholesale)",
+          btnModelagem: "🧩 Calculate Modeling",
+          footerSubtitle: "This creation was inspired by and based on the Cotrim 3D spreadsheet.",
+          labelCountrySelect: "Country / Language / Currency",
+          modelagemTitle: "Modeling / Prototyping Calculator",
+          btnCloseModal: "Close ✕",
+          titleProjectConfig: "Project Setup",
+          labelTipoProjeto: "Project type",
+          optProjetoSimples: "Simple (basic part)",
+          optProjetoMedio: "Medium (functional prototype)",
+          optProjetoComplexo: "Complex (detailed product)",
+          optProjetoCustom: "Custom (set your own values)",
+          labelCustoHora: "Hourly cost",
+          labelHoras: "Estimated hours",
+          labelRevisoes: "Included revisions",
+          labelPrototipo: "Physical prototype cost",
+          labelNDA: "Intellectual Property / NDA fee",
+          labelUrgencia: "Urgency",
+          urgenciaNormal: "Normal",
+          urgenciaUrgente: "Urgent (+100%)",
+          titleFinancial: "Financial",
+          labelDesconto: "Discount (%)",
+          labelImpostoModel: "Tax (%)",
+          labelMarkupModel: "Markup (%)",
+          btnCalcularModelagem: "🧮 Calculate quote",
+          btnLimparModelagem: "Clear",
+          titleResumoModelagem: "Quote summary",
+          titlePrecoSugerido: "Suggested price:",
+          placeholderExtra: "Ex.: magnet / glue / painting...",
+          removeTitle: "Remove",
+          defaultPieceName: "My part"
+        }
+      }
+    };
+
+    let currentCountry = "BR";
+    let resultados = {};
+
+    function getCountryConfig() {
+      return COUNTRY_CONFIG[currentCountry] || COUNTRY_CONFIG.BR;
+    }
+
+    function arred2(valor) {
+      return Math.round((valor + Number.EPSILON) * 100) / 100;
+    }
+
+    function applyTheme(mode) {
+      const isDark = mode === "dark";
+      document.body.classList.toggle("dark", isDark);
+
+      const metaDark = document.querySelector("#meta-theme-color-dark");
+      if (metaDark) metaDark.setAttribute("content", isDark ? "#0f172a" : "#7b5cff");
+
+      localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+
+      const btn = document.getElementById("btnToggleTheme");
+      const t = getCountryConfig().texts;
+      if (btn) btn.textContent = isDark ? t.toggleThemeLight : t.toggleThemeDark;
+    }
+
+    function formatarMoeda(valor) {
+      const cfg = getCountryConfig();
+      return new Intl.NumberFormat(cfg.locale, {
+        style: "currency",
+        currency: cfg.currency
+      }).format(valor || 0);
+    }
+
+    function formatarNumero(valor, casas = 2) {
+      const cfg = getCountryConfig();
+      return new Intl.NumberFormat(cfg.locale, {
+        minimumFractionDigits: casas,
+        maximumFractionDigits: casas
+      }).format(valor || 0);
+    }
+
+    function obterValor(id) {
+      const el = document.getElementById(id);
+      return parseFloat(el?.value) || 0;
+    }
+
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function getNFManual() {
+      return (document.getElementById("numeroNF")?.value || "").trim();
+    }
+
+    function setNFManual(v) {
+      const el = document.getElementById("numeroNF");
+      if (!el) return;
+      el.value = v || "";
+      localStorage.setItem(NF_KEY, el.value);
+    }
+
+    function aplicarIdiomaMoeda(country) {
+      currentCountry = country in COUNTRY_CONFIG ? country : "BR";
+      localStorage.setItem(COUNTRY_KEY, currentCountry);
+
+      const cfg = getCountryConfig();
+      const t = cfg.texts;
+
+      document.documentElement.lang = cfg.lang;
+      document.title = t.pageTitle;
+
+      const textMap = {
+        labelCountrySelect: t.labelCountrySelect,
+        headerMainTitle: t.pageTitle,
+        headerSubtitle: t.headerSubtitle,
+        titlePieceData: t.titlePieceData,
+        labelNomePeca: t.labelNomePeca,
+        labelTempoImpressao: t.labelTempoImpressao,
+        tipTempoImpressao: t.tipTempoImpressao,
+        labelPesoGramas: t.labelPesoGramas,
+        tipPesoGramas: t.tipPesoGramas,
+        titleMaterialEnergy: t.titleMaterialEnergy,
+        labelCustoKgFilamento: t.labelCustoKgFilamento,
+        labelPotenciaWatts: t.labelPotenciaWatts,
+        labelCustoKwh: t.labelCustoKwh,
+        labelConsumoKwh: t.labelConsumoKwh,
+        tipCustoKgFilamento: t.tipCustoKgFilamento,
+        tipPotenciaWatts: t.tipPotenciaWatts,
+        tipCustoKwh: t.tipCustoKwh,
+        tipConsumoKwh: t.tipConsumoKwh,
+        titlePackagingFixed: t.titlePackagingFixed,
+        labelValorRoloEmbalagem: t.labelValorRoloEmbalagem,
+        labelEmbalagensRolo: t.labelEmbalagensRolo,
+        labelUnidadesMes: t.labelUnidadesMes,
+        labelCustoFixoMensal: t.labelCustoFixoMensal,
+        tipValorRoloEmbalagem: t.tipValorRoloEmbalagem,
+        tipEmbalagensRolo: t.tipEmbalagensRolo,
+        tipUnidadesMes: t.tipUnidadesMes,
+        tipCustoFixoMensal: t.tipCustoFixoMensal,
+        titleAdditionalCosts: t.titleAdditionalCosts,
+        labelAdditionalItems: t.labelAdditionalItems,
+        tipAdditionalItems: t.tipAdditionalItems,
+        btnAddExtra: t.btnAddExtra,
+        labelTotalAdditional: t.labelTotalAdditional,
+        titlePrinterAmortization: t.titlePrinterAmortization,
+        labelValorImpressora: t.labelValorImpressora,
+        labelVidaUtilHoras: t.labelVidaUtilHoras,
+        tipValorImpressora: t.tipValorImpressora,
+        tipVidaUtilHoras: t.tipVidaUtilHoras,
+        titleRatesPricing: t.titleRatesPricing,
+        labelPercentualFalhas: t.labelPercentualFalhas,
+        labelImposto: t.labelImposto,
+        labelTaxaCartao: t.labelTaxaCartao,
+        labelCustoAnuncio: t.labelCustoAnuncio,
+        labelMarkup: t.labelMarkup,
+        tipPercentualFalhas: t.tipPercentualFalhas,
+        tipImposto: t.tipImposto,
+        tipTaxaCartao: t.tipTaxaCartao,
+        tipCustoAnuncio: t.tipCustoAnuncio,
+        tipMarkup: t.tipMarkup,
+        titleInvoiceNumber: t.titleInvoiceNumber,
+        labelNumeroNF: t.labelNumeroNF,
+        tipNumeroNF: t.tipNumeroNF,
+        numeroNFNote: t.numeroNFNote,
+        titleDetailedCosts: t.titleDetailedCosts,
+        textFilamento: t.textFilamento,
+        textEnergia: t.textEnergia,
+        textEmbalagem: t.textEmbalagem,
+        textCustoFixo: t.textCustoFixo,
+        textAmortizacao: t.textAmortizacao,
+        textAdicionais: t.textAdicionais,
+        textFalhas: t.textFalhas,
+        textCustoTotal: t.textCustoTotal,
+        titlePricing: t.titlePricing,
+        tipPricing: t.tipPricing,
+        titleConsumerFinal: t.titleConsumerFinal,
+        textPrecoVenda: t.textPrecoVenda,
+        textLucroBruto: t.textLucroBruto,
+        textLucroLiquido: t.textLucroLiquido,
+        titleWholesale: t.titleWholesale,
+        textPrecoLojista: t.textPrecoLojista,
+        textLucroBrutoLojista: t.textLucroBrutoLojista,
+        textLucroLiquidoLojista: t.textLucroLiquidoLojista,
+        titlePersonalUse: t.titlePersonalUse,
+        textCustoReal: t.textCustoReal,
+        textPersonalUseDesc: t.textPersonalUseDesc,
+        footerSubtitle: t.footerSubtitle,
+        modelagemTitle: t.modelagemTitle,
+        btnCloseModal: t.btnCloseModal,
+        titleProjectConfig: t.titleProjectConfig,
+        labelTipoProjeto: t.labelTipoProjeto,
+        optProjetoSimples: t.optProjetoSimples,
+        optProjetoMedio: t.optProjetoMedio,
+        optProjetoComplexo: t.optProjetoComplexo,
+        optProjetoCustom: t.optProjetoCustom,
+        labelCustoHora: t.labelCustoHora,
+        labelHoras: t.labelHoras,
+        labelRevisoes: t.labelRevisoes,
+        labelPrototipo: t.labelPrototipo,
+        labelNDA: t.labelNDA,
+        labelUrgencia: t.labelUrgencia,
+        urgenciaNormal: t.urgenciaNormal,
+        urgenciaUrgente: t.urgenciaUrgente,
+        titleFinancial: t.titleFinancial,
+        labelDesconto: t.labelDesconto,
+        labelImpostoModel: t.labelImpostoModel,
+        labelMarkupModel: t.labelMarkupModel,
+        btnLimparModelagem: t.btnLimparModelagem,
+        titleResumoModelagem: t.titleResumoModelagem,
+        titlePrecoSugerido: t.titlePrecoSugerido
+      };
+
+      Object.entries(textMap).forEach(([id, value]) => setText(id, value));
+
+      const btnExportPDF = document.getElementById("btnExportPDF");
+      if (btnExportPDF) btnExportPDF.innerHTML = `<span class="btn-icon">📥</span>${t.btnExportPDF.replace("📥 ", "")}`;
+
+      const btnClientePDF = document.getElementById("btnClientePDF");
+      if (btnClientePDF) btnClientePDF.innerHTML = `<span class="btn-icon">🧾</span>${t.btnClientePDF.replace("🧾 ", "")}`;
+
+      const btnLojistaPDF = document.getElementById("btnLojistaPDF");
+      if (btnLojistaPDF) btnLojistaPDF.innerHTML = `<span class="btn-icon">🏪</span>${t.btnLojistaPDF.replace("🏪 ", "")}`;
+
+      const btnModelagem = document.getElementById("btnModelagem");
+      if (btnModelagem) btnModelagem.innerHTML = `<span class="btn-icon">🧩</span>${t.btnModelagem.replace("🧩 ", "")}`;
+
+      const btnCalcularModelagem = document.getElementById("btnCalcularModelagem");
+      if (btnCalcularModelagem) btnCalcularModelagem.innerHTML = `<span class="btn-icon">🧮</span>${t.btnCalcularModelagem.replace("🧮 ", "")}`;
+
+      const unit = `(${cfg.symbol})`;
+      setText("unitCustoKwh", unit);
+      setText("unitValorRoloEmbalagem", unit);
+      setText("unitCustoFixoMensal", unit);
+      setText("unitValorImpressora", unit);
+      setText("unitCustoKgFilamento", `(${cfg.symbol}/kg)`);
+
+      const pieceNameEl = document.getElementById("nomePeca");
+      if (pieceNameEl && !pieceNameEl.dataset.userEdited) {
+        pieceNameEl.value = t.defaultPieceName;
+      }
+
+      const countrySelect = document.getElementById("countrySelect");
+      if (countrySelect) countrySelect.value = currentCountry;
+
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const sysDark = prefersDarkMedia ? prefersDarkMedia.matches : false;
+      applyTheme(savedTheme ? savedTheme : (sysDark ? "dark" : "light"));
+
+      atualizarPlaceholdersExtras();
+      calcularTodos();
+      calcularModelagemSilencioso();
+    }
+
+    function atualizarPlaceholdersExtras() {
+      const t = getCountryConfig().texts;
+      const rows = document.querySelectorAll("#extrasList > div");
+      rows.forEach((row) => {
+        const textInput = row.querySelector('input[type="text"]');
+        const delBtn = row.querySelector("button");
+        if (textInput) textInput.placeholder = t.placeholderExtra;
+        if (delBtn) delBtn.title = t.removeTitle;
+      });
+    }
+
+    (function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      const sysDark = prefersDarkMedia ? prefersDarkMedia.matches : false;
+      applyTheme(saved ? saved : (sysDark ? "dark" : "light"));
+    })();
+
+    document.getElementById("btnToggleTheme").addEventListener("click", () => {
+      const wantDark = !document.body.classList.contains("dark");
+      applyTheme(wantDark ? "dark" : "light");
+    });
+
+    if (prefersDarkMedia) {
+      prefersDarkMedia.addEventListener("change", (e) => {
+        const saved = localStorage.getItem(THEME_KEY);
+        if (!saved) applyTheme(e.matches ? "dark" : "light");
+      });
+    }
+
+    function criarLinhaExtra(descricao = "", valor = 0) {
+      const t = getCountryConfig().texts;
+      const row = document.createElement("div");
+      row.className = "form-grid";
+      row.style.gridTemplateColumns = "2fr 1fr auto";
+      row.style.gap = "10px";
+      row.innerHTML = `
+        <input class="form-input" type="text" placeholder="${t.placeholderExtra}" value="${descricao}">
+        <input class="form-input" type="number" step="0.01" min="0" value="${Number(valor || 0)}">
+        <button type="button" class="btn-toggle" title="${t.removeTitle}">🗑️</button>
+      `;
+
+      const [descEl, valEl, delBtn] = row.children;
+
+      if (descricao) descEl.dataset.userEdited = "true";
+      descEl.addEventListener("input", () => {
+        descEl.dataset.userEdited = "true";
+        calcularTodos();
+      });
+      valEl.addEventListener("input", calcularTodos);
+
+      delBtn.addEventListener("click", () => {
+        row.remove();
+        calcularTodos();
+      });
+
+      return row;
+    }
+
+    function adicionarExtra(descricao = "", valor = 0) {
+      const list = document.getElementById("extrasList");
+      if (!list) return;
+      list.appendChild(criarLinhaExtra(descricao, valor));
+      calcularTodos();
+    }
+
+    function obterTotalAdicionais() {
+      const list = document.getElementById("extrasList");
+      if (!list) return 0;
+      let total = 0;
+      [...list.children].forEach((row) => {
+        const valInput = row.querySelector('input[type="number"]');
+        total += parseFloat(valInput?.value) || 0;
+      });
+      return total;
+    }
+
+    function calcularTodos() {
+      const tempoImpressao = obterValor("tempoImpressao");
+      const pesoGramas = obterValor("pesoGramas");
+      const custoKgFilamento = obterValor("custoKgFilamento");
+      const potenciaWatts = obterValor("potenciaWatts");
+      const custoKwh = obterValor("custoKwh");
+      const valorRoloEmbalagem = obterValor("valorRoloEmbalagem");
+      const embalagensRolo = Math.max(obterValor("embalagensRolo"), 1);
+      const custoFixoMensal = obterValor("custoFixoMensal");
+      const unidadesMes = Math.max(obterValor("unidadesMes"), 1);
+      const valorImpressora = obterValor("valorImpressora");
+      const vidaUtilHoras = Math.max(obterValor("vidaUtilHoras"), 1);
+      const percentualFalhas = obterValor("percentualFalhas");
+      const imposto = obterValor("imposto");
+      const taxaCartao = obterValor("taxaCartao");
+      const custoAnuncio = obterValor("custoAnuncio");
+      const markup = Math.max(obterValor("markup"), 1);
+
+      const custoAdicionais = obterTotalAdicionais();
+
+      const custoFilamento = arred2((pesoGramas / 1000) * custoKgFilamento);
+      const consumoKwh = (potenciaWatts * tempoImpressao) / 1000;
+      const custoEnergetico = arred2(consumoKwh * custoKwh);
+      const custoEmbalagem = arred2(valorRoloEmbalagem / embalagensRolo);
+      const custoFixoUnidade = arred2(custoFixoMensal / unidadesMes);
+      const amortizacaoHora = valorImpressora / vidaUtilHoras;
+      const custoAmortizacao = arred2(amortizacaoHora * tempoImpressao);
+
+      const custoBaseSemAdicionais = arred2(
+        custoFilamento +
+        custoEnergetico +
+        custoEmbalagem +
+        custoFixoUnidade +
+        custoAmortizacao
+      );
+
+      const custoFalhas = arred2(custoBaseSemAdicionais * (percentualFalhas / 100));
+      const custoAdicionaisFinal = arred2(custoAdicionais);
+
+      const custoTotalUnidade = arred2(
+        custoBaseSemAdicionais +
+        custoFalhas +
+        custoAdicionaisFinal
+      );
+
+      const precoVenda = arred2(
+        ((custoBaseSemAdicionais + custoFalhas) * markup) + custoAdicionaisFinal
+      );
+
+      const valorImposto = arred2(precoVenda * (imposto / 100));
+      const valorTaxaCartao = arred2(precoVenda * (taxaCartao / 100));
+      const valorCustoAnuncio = arred2(precoVenda * (custoAnuncio / 100));
+
+      const lucroBruto = arred2(precoVenda - custoTotalUnidade);
+
+      const lucroLiquido = arred2(
+        lucroBruto -
+        valorImposto -
+        valorTaxaCartao -
+        valorCustoAnuncio
+      );
+
+      const precoLojista = arred2(precoVenda * 0.5);
+      const lucroBrutoLojista = arred2(precoLojista - custoTotalUnidade);
+      const lucroLiquidoLojista = arred2(
+        lucroBrutoLojista - arred2(precoLojista * (imposto / 100))
+      );
+
+      const custoUsoPessoal = arred2(
+        custoFilamento +
+        custoEnergetico +
+        custoAmortizacao
+      );
+
+      const custoFalhasUsoPessoal = arred2(custoUsoPessoal * (percentualFalhas / 100));
+      const custoTotalUsoPessoal = arred2(custoUsoPessoal + custoFalhasUsoPessoal);
+
+      resultados = {
+        custoFilamento,
+        custoEnergetico,
+        custoEmbalagem,
+        custoFixoUnidade,
+        custoAmortizacao,
+        custoAdicionais: custoAdicionaisFinal,
+        custoFalhas,
+        custoTotalUnidade,
+        precoVenda,
+        valorImposto,
+        valorTaxaCartao,
+        valorCustoAnuncio,
+        lucroBruto,
+        lucroLiquido,
+        precoLojista,
+        lucroBrutoLojista,
+        lucroLiquidoLojista,
+        consumoKwh,
+        custoTotalUsoPessoal
+      };
+
+      const consumoInput = document.getElementById("consumoKwh");
+      if (consumoInput) consumoInput.value = consumoKwh.toFixed(3);
+
+      setText("displayCustoFilamento", formatarMoeda(custoFilamento));
+      setText("displayCustoEnergetico", formatarMoeda(custoEnergetico));
+      setText("displayCustoEmbalagem", formatarMoeda(custoEmbalagem));
+      setText("displayCustoFixo", formatarMoeda(custoFixoUnidade));
+      setText("displayCustoAmortizacao", formatarMoeda(custoAmortizacao));
+      setText("displayCustoAdicionais", formatarMoeda(custoAdicionaisFinal));
+      setText("displayCustoFalhas", formatarMoeda(custoFalhas));
+      setText("displayCustoTotal", formatarMoeda(custoTotalUnidade));
+
+      setText("displayPrecoVenda", formatarMoeda(precoVenda));
+      setText("displayLucroBruto", formatarMoeda(lucroBruto));
+      setText("displayLucroLiquido", formatarMoeda(lucroLiquido));
+
+      setText("displayPrecoLojista", formatarMoeda(precoLojista));
+      setText("displayLucroBrutoLojista", formatarMoeda(lucroBrutoLojista));
+      setText("displayLucroLiquidoLojista", formatarMoeda(lucroLiquidoLojista));
+
+      setText("displayCustoUsoPessoal", formatarMoeda(custoTotalUsoPessoal));
+
+      const percEl = document.getElementById("percentualFalhas");
+      setText("displayPercentualFalhas", (percEl?.value ?? "0"));
+
+      setText("displayTotalAdicionais", formatarMoeda(custoAdicionaisFinal));
+    }
+
+    function dataAtualFormatada() {
+      const cfg = getCountryConfig();
+      return new Date().toLocaleDateString(cfg.locale);
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function obterNumeroOrcamento() {
+      const nfManual = getNFManual();
+      return nfManual ? nfManual : ("VF-" + Date.now().toString().slice(-6));
+    }
+
+    function exportarPDF() {
+      calcularTodos();
+
+      const cfg = getCountryConfig();
+      const t = cfg.texts;
+      const isDark = document.body.classList.contains("dark");
+
+      const nomePeca = escapeHtml(document.getElementById("nomePeca").value || t.defaultPieceName);
+      const tempoImpressao = escapeHtml(document.getElementById("tempoImpressao").value);
+      const pesoGramas = escapeHtml(document.getElementById("pesoGramas").value);
+      const imposto = escapeHtml(document.getElementById("imposto").value);
+      const taxaCartao = escapeHtml(document.getElementById("taxaCartao").value);
+      const custoAnuncio = escapeHtml(document.getElementById("custoAnuncio").value);
+      const markup = escapeHtml(document.getElementById("markup").value);
+
+      const lightVars = `
+        --bg:#f9fafb; --card:#ffffff; --text:#111827; --muted:#374151;
+        --border:#e5e7eb; --primary:#3b82f6;
+        --pill-green:#d1fae5; --pill-violet:#ede9fe; --pill-orange:#ffedd5;
+        --pill-text:#111827;
+      `;
+      const darkVars = `
+        --bg:#0b1220; --card:#0f172a; --text:#ffffff; --muted:#cbd5e1;
+        --border:#445066; --primary:#60a5fa;
+        --pill-green:#065f46; --pill-violet:#4c1d95; --pill-orange:#7c2d12;
+        --pill-text:#ffffff;
+      `;
+
+      const htmlPDF = `
+        <!DOCTYPE html>
+        <html lang="${cfg.lang}">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="theme-color" content="${isDark ? "#0b1220" : "#7b5cff"}">
+          <title>${escapeHtml(t.pageTitle)} - ${nomePeca}</title>
+          <style>
+            :root { ${isDark ? darkVars : lightVars} }
+            *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body{
+              font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+              background:var(--bg); color:var(--text);
+              max-width:900px; margin:0 auto; padding:24px; line-height:1.6;
+            }
+            .header{ text-align:center; margin-bottom:24px; padding-bottom:16px; border-bottom:2px solid var(--primary); }
+            .section{ margin-bottom:18px; background:var(--card); color:var(--text);
+              padding:14px; border-radius:10px; border:1px solid var(--border); }
+            .section h2{ margin:0 0 10px; color:var(--primary); font-size:18px; }
+            .row{ display:flex; justify-content:space-between; align-items:center;
+              padding:8px 0; border-bottom:1px solid var(--border); }
+            .row:last-child{ border-bottom:0; }
+            .total{ font-weight:800; font-size:18px; padding:10px; border-radius:8px; border:1px solid var(--border);
+              background:${isDark ? "#991b1b" : "#fee2e2"}; color:var(--text); }
+            .pill{
+              border-radius:10px; padding:12px; text-align:center; margin-top:10px; border:1px solid var(--border);
+              color:var(--pill-text);
+            }
+            .pill.green{ background:var(--pill-green); }
+            .pill.violet{ background:var(--pill-violet); }
+            .pill.orange{ background:var(--pill-orange); }
+            .pill .main{ display:block; font-weight:800; font-size:20px; margin-top:6px; }
+            .muted{ color:var(--muted); font-size:12px; }
+            .footer{ margin-top:24px; text-align:center; color:var(--muted); font-size:12px; }
+            @page{ margin:12mm; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>🧮 ${escapeHtml(t.pageTitle)}</h1>
+            <p><strong>${escapeHtml(t.labelNomePeca)}:</strong> ${nomePeca}</p>
+            <p class="muted"><strong>Data:</strong> ${escapeHtml(dataAtualFormatada())}</p>
+          </div>
+
+          <div class="section">
+            <h2>📋 ${escapeHtml(t.titlePieceData)}</h2>
+            <div class="row"><span>${escapeHtml(t.labelTempoImpressao)}</span><span>${tempoImpressao} h</span></div>
+            <div class="row"><span>${escapeHtml(t.labelPesoGramas)}</span><span>${pesoGramas} g</span></div>
+            <div class="row"><span>${escapeHtml(t.labelConsumoKwh)}</span><span>${formatarNumero(resultados.consumoKwh || 0, 3)} kWh</span></div>
+          </div>
+
+          <div class="section">
+            <h2>💰 ${escapeHtml(t.titleDetailedCosts)}</h2>
+            <div class="row"><span>${escapeHtml(t.textFilamento)}</span><span>${formatarMoeda(resultados.custoFilamento)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textEnergia)}</span><span>${formatarMoeda(resultados.custoEnergetico)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textEmbalagem)}</span><span>${formatarMoeda(resultados.custoEmbalagem)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textCustoFixo)}</span><span>${formatarMoeda(resultados.custoFixoUnidade)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textAmortizacao)}</span><span>${formatarMoeda(resultados.custoAmortizacao)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textAdicionais)} (fora do markup)</span><span>${formatarMoeda(resultados.custoAdicionais)}</span></div>
+            <div class="row"><span>${escapeHtml(t.textFalhas)}</span><span>${formatarMoeda(resultados.custoFalhas)}</span></div>
+            <div class="total" style="margin-top:8px;">
+              <div class="row" style="border:0;padding:0;"><span>${escapeHtml(t.textCustoTotal)}</span><span>${formatarMoeda(resultados.custoTotalUnidade)}</span></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>🎯 ${escapeHtml(t.titlePricing)}</h2>
+            <div class="pill green">
+              <div>${escapeHtml(t.titleConsumerFinal)}</div>
+              <span class="main">${formatarMoeda(resultados.precoVenda)}</span>
+              <div class="muted">${escapeHtml(t.textLucroLiquido)} ${formatarMoeda(resultados.lucroLiquido)}</div>
+            </div>
+            <div class="pill violet">
+              <div>${escapeHtml(t.titleWholesale)}</div>
+              <span class="main">${formatarMoeda(resultados.precoLojista)}</span>
+              <div class="muted">${escapeHtml(t.textLucroLiquidoLojista)} ${formatarMoeda(resultados.lucroLiquidoLojista)}</div>
+            </div>
+            <div class="pill orange">
+              <div>${escapeHtml(t.titlePersonalUse)}</div>
+              <span class="main">${formatarMoeda(resultados.custoTotalUsoPessoal)}</span>
+              <div class="muted">${escapeHtml(t.textPersonalUseDesc)}</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>📊 ${escapeHtml(t.titleRatesPricing)}</h2>
+            <div class="row"><span>${escapeHtml(t.labelImposto)} ${imposto}%</span><span>${formatarMoeda(resultados.valorImposto)}</span></div>
+            <div class="row"><span>${escapeHtml(t.labelTaxaCartao)} ${taxaCartao}%</span><span>${formatarMoeda(resultados.valorTaxaCartao)}</span></div>
+            <div class="row"><span>${escapeHtml(t.labelCustoAnuncio)} ${custoAnuncio}%</span><span>${formatarMoeda(resultados.valorCustoAnuncio)}</span></div>
+          </div>
+
+          <div class="footer">
+            <p>${escapeHtml(t.pageTitle)}</p>
+            <p>Markup aplicado: ${markup}x</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const novaJanela = window.open("", "_blank");
+      if (!novaJanela) { alert("O navegador bloqueou o pop-up do PDF. Permita pop-ups para este site."); return; }
+      novaJanela.document.write(htmlPDF);
+      novaJanela.document.close();
+      setTimeout(() => { novaJanela.print(); }, 600);
+    }
+
+    function gerarHTMLOrcamento(tipo = "cliente") {
+      calcularTodos();
+
+      const cfg = getCountryConfig();
+      const t = cfg.texts;
+      const isDark = document.body.classList.contains("dark");
+
+      const nomePeca = escapeHtml((document.getElementById("nomePeca").value || t.defaultPieceName).trim());
+      const impostoPerc = obterValor("imposto");
+
+      const basePreco = tipo === "lojista" ? (resultados.precoLojista || 0) : (resultados.precoVenda || 0);
+      const tituloTipo = tipo === "lojista" ? t.titleWholesale : t.titleConsumerFinal;
+
+      const valorImposto = arred2(basePreco * (impostoPerc / 100));
+      const precoComImposto = arred2(basePreco + valorImposto);
+
+      const validadeDias = 7;
+      const prazoProducao = cfg.lang.startsWith("en") ? "to be agreed" : "a combinar";
+      const formaPagamento = cfg.lang === "en-US"
+        ? "PIX / Card / Bank Transfer (to be agreed)"
+        : "PIX / Cartão / Transferência (a combinar)";
+      const observacoes = cfg.lang === "en-US"
+        ? "Values subject to adjustment if there are changes in material, finishing, or dimensions."
+        : "Valores sujeitos a ajuste caso haja alteração de material, acabamento ou dimensões.";
+
+      const orcamentoNumero = obterNumeroOrcamento();
+      const dataHoje = dataAtualFormatada();
+
+      const topTitle = tipo === "lojista"
+        ? (cfg.lang === "en-US" ? "Wholesale Quote" : "Orçamento Lojista")
+        : (cfg.lang === "en-US" ? "Customer Quote" : "Orçamento");
+
+      const light = {
+        pageBg: "#f8fafc",
+        cardBg: "#ffffff",
+        text: "#0f172a",
+        muted: "#475569",
+        border: "#e2e8f0",
+        soft: "#f0f9ff",
+        topGrad: "linear-gradient(135deg,#7b5cff,#06b6d4)",
+        shadow: "0 10px 26px rgba(2,6,23,.08)",
+        pillBg: "#ecfeff",
+        pillBorder: "#cffafe",
+        pillText: "#0e7490"
+      };
+      const dark = {
+        pageBg: "#0b1220",
+        cardBg: "#0f172a",
+        text: "#e2e8f0",
+        muted: "#94a3b8",
+        border: "#334155",
+        soft: "#0b1a2a",
+        topGrad: "linear-gradient(135deg,#1d4ed8,#06b6d4)",
+        shadow: "0 10px 26px rgba(0,0,0,.35)",
+        pillBg: "#0b2a2f",
+        pillBorder: "#134e4a",
+        pillText: "#5eead4"
+      };
+      const c = isDark ? dark : light;
+
+      return `
+        <!DOCTYPE html>
+        <html lang="${cfg.lang}">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="theme-color" content="${isDark ? "#0b1220" : "#7b5cff"}" />
+          <title>${escapeHtml(topTitle)} - ${nomePeca}</title>
+          <style>
+            :root{
+              --page:${c.pageBg};
+              --card:${c.cardBg};
+              --text:${c.text};
+              --muted:${c.muted};
+              --border:${c.border};
+              --soft:${c.soft};
+              --top:${c.topGrad};
+              --shadow:${c.shadow};
+              --pill-bg:${c.pillBg};
+              --pill-border:${c.pillBorder};
+              --pill-text:${c.pillText};
+            }
+            *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; box-sizing:border-box; }
+            body{
+              font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+              margin:0; padding:24px; color:var(--text); background:var(--page); line-height:1.5;
+            }
+            .page{ max-width:920px; margin:0 auto; }
+            .card{
+              background:var(--card); border:1px solid var(--border); border-radius:16px;
+              box-shadow:var(--shadow);
+              overflow:hidden;
+            }
+            .top{
+              padding:18px 20px;
+              background:var(--top);
+              color:#fff;
+              display:flex; align-items:center; justify-content:space-between; gap:12px;
+            }
+            .brand{ display:flex; align-items:center; gap:12px; }
+            .logo{
+              width:44px; height:44px; border-radius:12px;
+              background:rgba(255,255,255,.18);
+              display:flex; align-items:center; justify-content:center;
+              border:1px solid rgba(255,255,255,.25);
+              font-size:20px;
+            }
+            .brand h1{ font-size:18px; margin:0; font-weight:900; }
+            .brand p{ margin:2px 0 0; opacity:.92; font-size:12px; }
+            .meta{ text-align:right; font-size:12px; opacity:.95; }
+            .meta div{ margin:2px 0; }
+            .content{ padding:18px 20px 6px; }
+            .section-title{
+              font-weight:900; font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+              color:var(--muted); margin:8px 0 10px;
+            }
+            .grid{ display:grid; grid-template-columns:1.25fr .75fr; gap:14px; }
+            @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+            .box{
+              border:1px solid var(--border); border-radius:14px; padding:14px;
+              background:var(--card);
+            }
+            .row{
+              display:flex; justify-content:space-between; gap:10px;
+              padding:8px 0; border-bottom:1px dashed var(--border);
+            }
+            .row:last-child{ border-bottom:0; }
+            .label{ color:var(--muted); font-size:13px; }
+            .value{ font-weight:800; color:var(--text); font-size:13px; text-align:right; }
+            .highlight{
+              border-radius:16px; padding:16px; border:1px solid var(--border);
+              background:linear-gradient(180deg,var(--soft),var(--card));
+            }
+            .price{
+              font-size:28px; font-weight:1000; letter-spacing:-.02em; margin:6px 0 4px;
+              color:var(--text);
+            }
+            .sub{ color:var(--muted); font-size:12px; margin:0; }
+            .pill{
+              display:inline-block; padding:6px 10px; border-radius:999px;
+              background:var(--pill-bg); border:1px solid var(--pill-border); color:var(--pill-text);
+              font-weight:800; font-size:12px;
+            }
+            .note{ margin-top:10px; font-size:12px; color:var(--muted); }
+            .footer{
+              padding:12px 20px 18px;
+              display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+              color:var(--muted); font-size:12px;
+            }
+            .footer strong{ color:var(--text); }
+            .small{ font-size:11px; color:var(--muted); opacity:.95; }
+            .divider{ height:1px; background:var(--border); margin:14px 0; }
+            @page { margin:12mm; }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="card">
+              <div class="top">
+                <div class="brand">
+                  <div class="logo">${tipo === "lojista" ? "🏪" : "🖨️"}</div>
+                  <div>
+                    <h1>V&F 3D Solutions — ${escapeHtml(topTitle)}</h1>
+                    <p>${cfg.lang === "en-US" ? "3D Printing • Modeling • Prototyping" : "Impressão 3D • Modelagem • Prototipagem"}</p>
+                  </div>
+                </div>
+                <div class="meta">
+                  <div><strong>Nº:</strong> ${escapeHtml(orcamentoNumero)}</div>
+                  <div><strong>Data:</strong> ${escapeHtml(dataHoje)}</div>
+                  <div><strong>${cfg.lang === "en-US" ? "Validity" : "Validade"}:</strong> ${validadeDias} ${cfg.lang === "en-US" ? "days" : "dias"}</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div class="grid">
+                  <div class="box">
+                    <div class="section-title">${cfg.lang === "en-US" ? "Quoted item" : "Item orçado"}</div>
+                    <div class="row">
+                      <div class="label">${escapeHtml(t.labelNomePeca)}</div>
+                      <div class="value">${nomePeca}</div>
+                    </div>
+                    <div class="row">
+                      <div class="label">${cfg.lang === "en-US" ? "Quote type" : "Tipo de orçamento"}</div>
+                      <div class="value">${escapeHtml(tituloTipo)}</div>
+                    </div>
+                    <div class="row">
+                      <div class="label">${cfg.lang === "en-US" ? "Production time" : "Prazo de produção"}</div>
+                      <div class="value">${escapeHtml(prazoProducao)}</div>
+                    </div>
+                    <div class="row">
+                      <div class="label">${cfg.lang === "en-US" ? "Payment method" : "Forma de pagamento"}</div>
+                      <div class="value">${escapeHtml(formaPagamento)}</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="section-title">${cfg.lang === "en-US" ? "Values" : "Valores"}</div>
+                    <div class="row">
+                      <div class="label">${cfg.lang === "en-US" ? "Price before tax" : "Preço sem imposto"}</div>
+                      <div class="value">${formatarMoeda(basePreco)}</div>
+                    </div>
+                    <div class="row">
+                      <div class="label">${escapeHtml(t.labelImposto)} ${formatarNumero(impostoPerc, 1)}%</div>
+                      <div class="value">${formatarMoeda(valorImposto)}</div>
+                    </div>
+                    <div class="row">
+                      <div class="label"><strong>${cfg.lang === "en-US" ? "Total with tax" : "Total com imposto"}</strong></div>
+                      <div class="value"><strong>${formatarMoeda(precoComImposto)}</strong></div>
+                    </div>
+
+                    <p class="note">${escapeHtml(observacoes)}</p>
+                    <p class="small">* ${cfg.lang === "en-US" ? "This quote is for presentation only and does not show internal production costs." : "Este orçamento é para apresentação e não exibe custos internos de produção."}</p>
+                  </div>
+
+                  <div class="highlight">
+                    <div class="section-title">${tipo === "lojista"
+                      ? (cfg.lang === "en-US" ? "Wholesale total" : "Total lojista")
+                      : (cfg.lang === "en-US" ? "Customer total" : "Total para o cliente")}</div>
+                    <span class="pill">${escapeHtml(tituloTipo)}</span>
+                    <div class="price">${formatarMoeda(precoComImposto)}</div>
+                    <p class="sub">${cfg.lang === "en-US" ? "Estimated final total (tax highlighted)." : "Total final estimado (imposto destacado)."}</p>
+
+                    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+                      <div class="row" style="border-bottom:0;padding:6px 0;">
+                        <div class="label">${cfg.lang === "en-US" ? "Base price" : "Preço base"}</div>
+                        <div class="value">${formatarMoeda(basePreco)}</div>
+                      </div>
+                      <div class="row" style="border-bottom:0;padding:6px 0;">
+                        <div class="label">${escapeHtml(t.labelImposto)}</div>
+                        <div class="value">${formatarMoeda(valorImposto)}</div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--card);">
+                      <div class="section-title" style="margin:0 0 8px;">${cfg.lang === "en-US" ? "Terms" : "Condições"}</div>
+                      <div class="small">• ${cfg.lang === "en-US" ? "Validity" : "Validade"}: ${validadeDias} ${cfg.lang === "en-US" ? "days" : "dias"}</div>
+                      <div class="small">• ${cfg.lang === "en-US" ? "Production" : "Prazo"}: ${escapeHtml(prazoProducao)}</div>
+                      <div class="small">• ${cfg.lang === "en-US" ? "Payment" : "Pagamento"}: ${escapeHtml(formaPagamento)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="footer">
+                <div>
+                  <div><strong>V&F 3D Solutions</strong></div>
+                  <div class="small">${cfg.lang === "en-US" ? "Contact: (fill your WhatsApp here)" : "Atendimento: (preencha seu WhatsApp aqui)"}</div>
+                  <div class="small">E-mail: (seu e-mail)</div>
+                </div>
+                <div class="small" style="text-align:right;">
+                  ${cfg.lang === "en-US" ? "Automatically generated document" : "Documento gerado automaticamente"}<br/>
+                  ${escapeHtml(dataHoje)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+    }
+
+    function exportarOrcamentoClientePDF() {
+      const html = gerarHTMLOrcamento("cliente");
+      const w = window.open("", "_blank");
+      if (!w) { alert("O navegador bloqueou o pop-up do orçamento. Permita pop-ups para este site."); return; }
+      w.document.write(html);
+      w.document.close();
+      setTimeout(() => { w.print(); }, 600);
+    }
+
+    function exportarOrcamentoLojistaPDF() {
+      const html = gerarHTMLOrcamento("lojista");
+      const w = window.open("", "_blank");
+      if (!w) { alert("O navegador bloqueou o pop-up do orçamento. Permita pop-ups para este site."); return; }
+      w.document.write(html);
+      w.document.close();
+      setTimeout(() => { w.print(); }, 600);
+    }
+
+    function abrirModelagem() {
+      document.getElementById("modalModelagem").style.display = "flex";
+    }
+
+    function fecharModelagem() {
+      document.getElementById("modalModelagem").style.display = "none";
+    }
+
+    function sincronizarHorasPorTipo() {
+      const sel = document.getElementById("tipoProjeto");
+      const horas = sel.options[sel.selectedIndex].getAttribute("data-horas");
+      if (horas !== null) {
+        const v = parseFloat(horas);
+        if (!isNaN(v)) document.getElementById("horas").value = v;
+      }
+    }
+
+    function calcularModelagem() {
+      calcularModelagemSilencioso(true);
+    }
+
+    function calcularModelagemSilencioso(atualizarDetalhes = false) {
+      const t = getCountryConfig().texts;
+      const custoHora = parseFloat(document.getElementById("custoHora").value) || 0;
+      const horas = parseFloat(document.getElementById("horas").value) || 0;
+      const prototipo = parseFloat(document.getElementById("prototipo").value) || 0;
+      const nda = parseFloat(document.getElementById("nda").value) || 0;
+      const urgencia = parseFloat(document.getElementById("urgencia").value) || 1;
+      const desconto = parseFloat(document.getElementById("desconto").value) || 0;
+      const imposto = parseFloat(document.getElementById("impostoModel").value) || 0;
+      const markup = parseFloat(document.getElementById("markupModel").value) || 0;
+
+      const subtotal = arred2(custoHora * horas);
+      let total = arred2((subtotal + prototipo + nda) * urgencia);
+      if (desconto > 0) total = arred2(total - (total * (desconto / 100)));
+      if (imposto > 0) total = arred2(total + (total * (imposto / 100)));
+      if (markup > 0) total = arred2(total + (total * (markup / 100)));
+
+      document.getElementById("precoFinal").innerText = formatarMoeda(total);
+
+      if (atualizarDetalhes || document.getElementById("detalhes").innerHTML.trim() !== "") {
+        const html = `
+          <p>${t.labelCustoHora}: ${formatarMoeda(custoHora)}</p>
+          <p>${t.labelHoras}: ${formatarNumero(horas, 1)}</p>
+          <p>Subtotal: ${formatarMoeda(subtotal)}</p>
+          <p>${t.labelPrototipo}: ${formatarMoeda(prototipo)}</p>
+          <p>${t.labelNDA}: ${formatarMoeda(nda)}</p>
+          <p>${t.labelUrgencia}: x${formatarNumero(urgencia, 0)}</p>
+          <p>${t.labelDesconto}: ${formatarNumero(desconto, 1)}%</p>
+          <p>${t.labelImpostoModel}: ${formatarNumero(imposto, 1)}%</p>
+          <p>${t.labelMarkupModel}: ${formatarNumero(markup, 1)}%</p>
+        `;
+        document.getElementById("detalhes").innerHTML = html;
+      }
+    }
+
+    function limparModelagem() {
+      document.getElementById("precoFinal").innerText = formatarMoeda(0);
+      document.getElementById("detalhes").innerHTML = "";
+      document.getElementById("tipoProjeto").value = "simples";
+      sincronizarHorasPorTipo();
+      document.getElementById("custoHora").value = 50;
+      document.getElementById("revisoes").value = 2;
+      document.getElementById("prototipo").value = 150;
+      document.getElementById("nda").value = 0;
+      document.getElementById("urgencia").value = 1;
+      document.getElementById("desconto").value = 0;
+      document.getElementById("impostoModel").value = 0;
+      document.getElementById("markupModel").value = 0;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const countrySaved = localStorage.getItem(COUNTRY_KEY) || "BR";
+      currentCountry = countrySaved in COUNTRY_CONFIG ? countrySaved : "BR";
+
+      const pieceNameEl = document.getElementById("nomePeca");
+      if (pieceNameEl) {
+        pieceNameEl.addEventListener("input", function () {
+          this.dataset.userEdited = "true";
+        });
+      }
+
+      adicionarExtra("", 0);
+
+      const nfSaved = localStorage.getItem(NF_KEY) || "";
+      setNFManual(nfSaved);
+
+      const nfEl = document.getElementById("numeroNF");
+      if (nfEl) nfEl.addEventListener("input", () => localStorage.setItem(NF_KEY, nfEl.value));
+
+      const countrySelect = document.getElementById("countrySelect");
+      if (countrySelect) {
+        countrySelect.value = currentCountry;
+        countrySelect.addEventListener("change", function () {
+          aplicarIdiomaMoeda(this.value);
+        });
+      }
+
+      aplicarIdiomaMoeda(currentCountry);
+      sincronizarHorasPorTipo();
+      calcularTodos();
+      limparModelagem();
+    });
+  </script>
+</body>
+</html>
