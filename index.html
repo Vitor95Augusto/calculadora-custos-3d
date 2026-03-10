@@ -449,7 +449,7 @@
                   <span class="tooltip-text" id="tipTempoImpressao">Tempo total de impressão em horas (ex: 12.5 para 12h30min)</span>
                 </span>
               </label>
-              <input type="number" step="0.1" class="form-input" id="tempoImpressao" value="12.2" oninput="calcularTodos()" />
+              <input type="number" step="0.1" class="form-input" id="tempoImpressao" value="0" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="pesoGramas" id="labelPesoGramas">
@@ -459,7 +459,7 @@
                   <span class="tooltip-text" id="tipPesoGramas">Peso final da peça em gramas (use a informação do seu slicer)</span>
                 </span>
               </label>
-              <input type="number" step="0.01" class="form-input" id="pesoGramas" value="223.57" oninput="calcularTodos()" />
+              <input type="number" step="0.01" class="form-input" id="pesoGramas" value="0" oninput="calcularTodos()" />
             </div>
           </div>
         </div>
@@ -478,7 +478,7 @@
                   <span class="tooltip-text" id="tipCustoKgFilamento">Preço que você pagou por 1kg do filamento</span>
                 </span>
               </label>
-              <input type="number" step="0.01" class="form-input" id="custoKgFilamento" value="89.90" oninput="calcularTodos()" />
+              <input type="number" step="0.01" class="form-input" id="custoKgFilamento" value="109.00" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="potenciaWatts">
@@ -488,7 +488,7 @@
                   <span class="tooltip-text" id="tipPotenciaWatts">Potência da sua impressora 3D em Watts (verifique nas especificações)</span>
                 </span>
               </label>
-              <input type="number" class="form-input" id="potenciaWatts" value="360" oninput="calcularTodos()" />
+              <input type="number" class="form-input" id="potenciaWatts" value="390" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="custoKwh">
@@ -498,7 +498,7 @@
                   <span class="tooltip-text" id="tipCustoKwh">Valor do kWh na sua conta de luz</span>
                 </span>
               </label>
-              <input type="number" step="0.01" class="form-input" id="custoKwh" value="0.84" oninput="calcularTodos()" />
+              <input type="number" step="0.01" class="form-input" id="custoKwh" value="0.90" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="consumoKwh">
@@ -607,7 +607,7 @@
                   <span class="tooltip-text" id="tipValorImpressora">Valor que você pagou pela impressora</span>
                 </span>
               </label>
-              <input type="number" step="0.01" class="form-input" id="valorImpressora" value="4500" oninput="calcularTodos()" />
+              <input type="number" step="0.01" class="form-input" id="valorImpressora" value="6000" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="vidaUtilHoras">
@@ -640,13 +640,13 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="imposto">
-                <span id="labelImposto">Imposto (%)</span>
+                <span id="labelImposto">NF-e (%)</span>
                 <span class="tooltip">
                   <span class="tooltip-icon">ℹ️</span>
-                  <span class="tooltip-text" id="tipImposto">Percentual de impostos (MEI, Simples Nacional, etc.)</span>
+                  <span class="tooltip-text" id="tipImposto">Percentual de NF-e (MEI, Simples Nacional, etc.)</span>
                 </span>
               </label>
-              <input type="number" step="0.1" class="form-input" id="imposto" value="8" oninput="calcularTodos()" />
+              <input type="number" step="0.1" class="form-input" id="imposto" value="6" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="taxaCartao">
@@ -656,7 +656,7 @@
                   <span class="tooltip-text" id="tipTaxaCartao">Taxa cobrada por operadoras de cartão</span>
                 </span>
               </label>
-              <input type="number" step="0.1" class="form-input" id="taxaCartao" value="5" oninput="calcularTodos()" />
+              <input type="number" step="0.1" class="form-input" id="taxaCartao" value="6" oninput="calcularTodos()" />
             </div>
             <div class="form-group">
               <label class="form-label" for="custoAnuncio">
@@ -666,7 +666,7 @@
                   <span class="tooltip-text" id="tipCustoAnuncio">Percentual gasto com anúncios e marketing</span>
                 </span>
               </label>
-              <input type="number" step="0.1" class="form-input" id="custoAnuncio" value="20" oninput="calcularTodos()" />
+              <input type="number" step="0.1" class="form-input" id="custoAnuncio" value="15" oninput="calcularTodos()" />
             </div>
             <div class="form-group input-group">
               <label class="form-label" for="markup">
@@ -776,7 +776,7 @@
 
     <div class="footer">
       <p class="footer-title">Copyright © V&F 3D Solutions</p>
-      <p class="footer-subtitle" id="footerSubtitle">Esta criação foi inspirada e baseada na planilha de Cotrim 3D.</p>
+      <p class="footer-subtitle" id="footerSubtitle">Todos os Direitos Reservados © 2025 V&F 3D Solutions.</p>
     </div>
   </div>
 
@@ -824,7 +824,7 @@
           <label for="desconto" id="labelDesconto">Desconto (%)</label>
           <input type="number" id="desconto" value="0" step="0.1" />
 
-          <label for="impostoModel" id="labelImpostoModel">Imposto (%)</label>
+          <label for="impostoModel" id="labelImpostoModel">NF-e (%)</label>
           <input type="number" id="impostoModel" value="0" step="0.1" />
 
           <label for="markupModel" id="labelMarkupModel">Markup (%)</label>
@@ -899,7 +899,7 @@
           tipVidaUtilHoras: "Vida útil estimada da impressora em horas de funcionamento",
           titleRatesPricing: "Taxas e Precificação",
           labelPercentualFalhas: "% de Falhas",
-          labelImposto: "Imposto (%)",
+          labelImposto: "NF-e (%)",
           labelTaxaCartao: "Taxa Cartão (%)",
           labelCustoAnuncio: "Custo Anúncio (%)",
           labelMarkup: "Markup (multiplicador)",
@@ -938,7 +938,7 @@
           btnClientePDF: "🧾 Gerar Orçamento (Cliente)",
           btnLojistaPDF: "🏪 Gerar Orçamento (Lojista)",
           btnModelagem: "🧩 Cálcular Modelagem",
-          footerSubtitle: "Esta criação foi inspirada e baseada na planilha de Cotrim 3D.",
+          footerSubtitle: "Todos os Direitos Reservados © 2025 V&F 3D Solutions.",
           labelCountrySelect: "País / Idioma / Moeda",
           modelagemTitle: "Calculadora de Modelagem / Prototipagem",
           btnCloseModal: "Fechar ✕",
@@ -958,7 +958,7 @@
           urgenciaUrgente: "Urgente (+100%)",
           titleFinancial: "Financeiro",
           labelDesconto: "Desconto (%)",
-          labelImpostoModel: "Imposto (%)",
+          labelImpostoModel: "NF-e (%)",
           labelMarkupModel: "Markup (%)",
           btnCalcularModelagem: "🧮 Calcular orçamento",
           btnLimparModelagem: "Limpar",
@@ -1015,7 +1015,7 @@
           tipVidaUtilHoras: "Vida útil estimada da impressora em horas de funcionamento",
           titleRatesPricing: "Taxas e Precificação",
           labelPercentualFalhas: "% de Falhas",
-          labelImposto: "Imposto (%)",
+          labelImposto: "NF-e (%)",
           labelTaxaCartao: "Taxa de Cartão (%)",
           labelCustoAnuncio: "Custo de Anúncio (%)",
           labelMarkup: "Markup (multiplicador)",
@@ -1074,7 +1074,7 @@
           urgenciaUrgente: "Urgente (+100%)",
           titleFinancial: "Financeiro",
           labelDesconto: "Desconto (%)",
-          labelImpostoModel: "Imposto (%)",
+          labelImpostoModel: "NF-e (%)",
           labelMarkupModel: "Markup (%)",
           btnCalcularModelagem: "🧮 Calcular orçamento",
           btnLimparModelagem: "Limpar",
@@ -1972,7 +1972,7 @@
 
                     <div class="section-title">${cfg.lang === "en-US" ? "Values" : "Valores"}</div>
                     <div class="row">
-                      <div class="label">${cfg.lang === "en-US" ? "Price before tax" : "Preço sem imposto"}</div>
+                      <div class="label">${cfg.lang === "en-US" ? "Price before tax" : "Preço Sem NF-e"}</div>
                       <div class="value">${formatarMoeda(basePreco)}</div>
                     </div>
                     <div class="row">
@@ -1980,7 +1980,7 @@
                       <div class="value">${formatarMoeda(valorImposto)}</div>
                     </div>
                     <div class="row">
-                      <div class="label"><strong>${cfg.lang === "en-US" ? "Total with tax" : "Total com imposto"}</strong></div>
+                      <div class="label"><strong>${cfg.lang === "en-US" ? "Total with tax" : "Total com NF-e"}</strong></div>
                       <div class="value"><strong>${formatarMoeda(precoComImposto)}</strong></div>
                     </div>
 
@@ -1994,7 +1994,7 @@
                       : (cfg.lang === "en-US" ? "Customer total" : "Total para o cliente")}</div>
                     <span class="pill">${escapeHtml(tituloTipo)}</span>
                     <div class="price">${formatarMoeda(precoComImposto)}</div>
-                    <p class="sub">${cfg.lang === "en-US" ? "Estimated final total (tax highlighted)." : "Total final estimado (imposto destacado)."}</p>
+                    <p class="sub">${cfg.lang === "en-US" ? "Estimated final total (tax highlighted)." : "Total final estimado (NF-e destacado)."}</p>
 
                     <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
                       <div class="row" style="border-bottom:0;padding:6px 0;">
@@ -2020,8 +2020,8 @@
               <div class="footer">
                 <div>
                   <div><strong>V&F 3D Solutions</strong></div>
-                  <div class="small">${cfg.lang === "en-US" ? "Contact: (fill your WhatsApp here)" : "Atendimento: (preencha seu WhatsApp aqui)"}</div>
-                  <div class="small">E-mail: (seu e-mail)</div>
+                  <div class="small">${cfg.lang === "en-US" ? "Contact: (fill your WhatsApp here)" : "Atendimento: (11) 98262-8058"}</div>
+                  <div class="small">E-mail: vef3dsolutions@gmail.com</div>
                 </div>
                 <div class="small" style="text-align:right;">
                   ${cfg.lang === "en-US" ? "Automatically generated document" : "Documento gerado automaticamente"}<br/>
